@@ -8,12 +8,13 @@
     {"local_name": "SWBDdrv_mc3", "connectable": true},
     {"local_name": "SWBDdrv_mc5", "connectable": true}
   ],
-  "codeowners": [],
+  "codeowners": ["@eldarsudden"],
   "config_flow": true,
   "dependencies": ["bluetooth_adapters"],
-  "documentation": "https://github.com/Karpesh/swbd-ble2mqtt",
+  "documentation": "https://github.com/eldarsudden/SWBD-Baby-Crib-Rocker",
   "integration_type": "device",
   "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/eldarsudden/SWBD-Baby-Crib-Rocker/issues",
   "requirements": ["bleak-retry-connector==4.7.1"],
   "version": "0.1.0"
 }

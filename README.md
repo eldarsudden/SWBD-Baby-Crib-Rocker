@@ -1,5 +1,8 @@
 # SWBD Baby Crib Rocker — Home Assistant
 
+[![Открыть в Marketplace / HACS](https://my.home-assistant.io/badges/marketplace_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=eldarsudden&repository=SWBD-Baby-Crib-Rocker&category=integration)
+[![Добавить интеграцию в Home Assistant](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=swbd)
+
 Пользовательская интеграция для прямого управления устройствами качания по
 Bluetooth LE. ESP32, прошивка шлюза и MQTT не нужны. Home Assistant подключается
 к качалке своим Bluetooth-адаптером.
@@ -30,6 +33,23 @@ Bluetooth LE. ESP32, прошивка шлюза и MQTT не нужны. Home A
 названием модели. При добавлении интеграция проверяет характеристику и ответ.
 
 ## Установка
+
+**Через Marketplace / HACS**
+
+1. Нажмите первую кнопку в начале README и укажите адрес своего Home Assistant.
+   В HA 2026.10 нужен установленный HACS; в HA 2026.11 и новее ссылка открывает
+   встроенный Marketplace. [Подробнее о совместимости ссылки](https://contributors.home-assistant.io/marketplace/guides/catalog/#the-link-to-your-repository).
+2. Подтвердите добавление пользовательского репозитория и скачайте интеграцию
+   **SWBD Baby Crib Rocker**.
+3. Перезапустите Home Assistant.
+4. Нажмите вторую кнопку **Добавить интеграцию в Home Assistant** либо подтвердите
+   автоматически обнаруженную качалку в **Настройки → Устройства и службы**.
+
+Первая кнопка открывает установку файлов, вторая — настройку уже установленной
+интеграции. Репозиторий добавляется как пользовательский; включение в общий
+каталог Marketplace / HACS оформляется отдельно.
+
+**Вручную**
 
 1. Скопируйте папку `custom_components/swbd` в каталог конфигурации HA:
    `/config/custom_components/swbd`. Файл `manifest.json` должен оказаться
