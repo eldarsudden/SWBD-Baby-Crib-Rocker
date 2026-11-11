@@ -1,0 +1,7 @@
+SWBD protocol adapted from Karpesh/swbd-ble2mqtt:
+https://github.com/Karpesh/swbd-ble2mqtt
+Commit: 8f504214892896a07815f10bc756444f9ab8830a
+Files: main/swbd.c, main/ble2mqtt.c, data/config.json
+Upstream MIT copyright: Copyright (c) 2018 Assaf Inbal
+SWBD-specific protocol work: Karpesh and contributors.
+The original MIT license is included in LICENSE.

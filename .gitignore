@@ -1,0 +1,38 @@
+# Local Python environments
+.venv/
+venv/
+
+# Python bytecode and tool caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.tox/
+.nox/
+
+# Test reports
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+
+# Generated packages and release archives
+/build/
+/dist/
+*.egg-info/
+
+# macOS and editor files
+.DS_Store
+._*
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Local configuration and logs
+.env
+.env.*
+!.env.example
+*.log

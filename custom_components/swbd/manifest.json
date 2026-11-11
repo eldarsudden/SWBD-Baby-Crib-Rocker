@@ -1,0 +1,19 @@
+{
+  "domain": "swbd",
+  "name": "SWBD Baby Crib Rocker",
+  "bluetooth": [
+    {"local_name": "SWBDdrv_mc0", "connectable": true},
+    {"local_name": "SWBDdrv_mc1", "connectable": true},
+    {"local_name": "SWBDdrv_mc2", "connectable": true},
+    {"local_name": "SWBDdrv_mc3", "connectable": true},
+    {"local_name": "SWBDdrv_mc5", "connectable": true}
+  ],
+  "codeowners": [],
+  "config_flow": true,
+  "dependencies": ["bluetooth_adapters"],
+  "documentation": "https://github.com/Karpesh/swbd-ble2mqtt",
+  "integration_type": "device",
+  "iot_class": "local_polling",
+  "requirements": ["bleak-retry-connector==4.7.1"],
+  "version": "0.1.0"
+}

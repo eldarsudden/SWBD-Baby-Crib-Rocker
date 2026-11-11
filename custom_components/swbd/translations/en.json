@@ -1,0 +1,51 @@
+{
+  "title": "SWBD Baby Crib Rocker",
+  "config": {
+    "flow_title": "{name}",
+    "step": {
+      "user": {
+        "title": "Select a rocker",
+        "description": "Select a nearby SWBD rocker. Close the manufacturer app and disconnect other BLE gateways.",
+        "data": {
+          "address": "Rocker"
+        }
+      },
+      "confirm": {
+        "title": "Add {name}",
+        "description": "Connect to {name} ({address}) directly over Bluetooth?"
+      }
+    },
+    "error": {
+      "cannot_connect": "Cannot read rocker state. Check Bluetooth range and disconnect the manufacturer app or another gateway."
+    },
+    "abort": {
+      "already_configured": "This rocker is already configured.",
+      "not_supported": "This Bluetooth device is not supported.",
+      "no_devices_found": "No SWBD rockers found. Turn on the rocker and check that Home Assistant has a working Bluetooth adapter within range."
+    }
+  },
+  "entity": {
+    "switch": {
+      "enabled": {
+        "name": "Rocking"
+      },
+      "motion_enabled": {
+        "name": "Motion sensor"
+      }
+    },
+    "number": {
+      "speed": {
+        "name": "Rocking power"
+      },
+      "sensitivity": {
+        "name": "Cry sensor sensitivity"
+      },
+      "hours": {
+        "name": "Timer hours"
+      },
+      "minutes": {
+        "name": "Timer minutes"
+      }
+    }
+  }
+}
