@@ -1,3 +1,8 @@
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="custom_components/swbd/brand/dark_icon@2x.png">
+  <img src="custom_components/swbd/brand/icon@2x.png" width="96" height="96" alt="SWBD — Material Icons Bedroom baby">
+</picture>
+
 # SWBD Baby Crib Rocker — Home Assistant
 
 [![Открыть в Marketplace / HACS](https://my.home-assistant.io/badges/marketplace_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=eldarsudden&repository=SWBD-Baby-Crib-Rocker&category=integration)

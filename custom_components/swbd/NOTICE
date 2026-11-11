@@ -5,3 +5,8 @@ Files: main/swbd.c, main/ble2mqtt.c, data/config.json
 Upstream MIT copyright: Copyright (c) 2018 Assaf Inbal
 SWBD-specific protocol work: Karpesh and contributors.
 The original MIT license is included in LICENSE.
+
+Brand icon: Google Material Icons "Bedroom baby" (filled), copyright Google.
+Source: https://github.com/google/material-design-icons/blob/master/src/search/bedroom_baby/materialicons/24px.svg
+Licensed under Apache License 2.0; included in brand/LICENSE.
+PNG derivatives are recolored, trimmed, and rasterized; the source SVG is unchanged.

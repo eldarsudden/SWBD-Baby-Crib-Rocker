@@ -16,5 +16,5 @@
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/eldarsudden/SWBD-Baby-Crib-Rocker/issues",
   "requirements": ["bleak-retry-connector==4.7.1"],
-  "version": "0.1.0"
+  "version": "0.1.1"
 }
