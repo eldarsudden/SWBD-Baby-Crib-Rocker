@@ -8,7 +8,9 @@ from bleak.exc import BleakError
 from homeassistant.config_entries import ConfigEntries, ConfigEntry, ConfigEntryState
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import AbortFlow, FlowResultType
-from homeassistant.exceptions import ConfigEntryNotReady, HomeAssistantError
+from homeassistant.exceptions import ConfigEntryError, ConfigEntryNotReady, HomeAssistantError
+from homeassistant.helpers import device_registry as dr
+from homeassistant.helpers import entity_registry as er
 
 from custom_components.swbd import async_setup_entry, async_unload_entry
 from custom_components.swbd import config_flow as flow_module
@@ -27,16 +29,19 @@ ADDRESS = "AA:BB:CC:DD:EE:FF"
 async def hass(tmp_path):
     instance = HomeAssistant(str(tmp_path))
     instance.config_entries = ConfigEntries(instance, {})
+    dr.async_setup(instance)
+    await dr.async_load(instance, load_empty=True)
+    await er.async_load(instance, load_empty=True)
     yield instance
     await instance.async_stop(force=True)
 
 
 @pytest.fixture
-def entry():
+def entry(request):
     return ConfigEntry(
         domain="swbd",
         title="Test rocker",
-        data={"address": ADDRESS, "local_name": "SWBDdrv_mc5"},
+        data={"address": ADDRESS, "local_name": getattr(request, "param", "SWBDdrv_mc5")},
         source="user",
         unique_id=ADDRESS,
         version=1,
@@ -105,6 +110,15 @@ async def test_unsupported_name(flow):
     assert result["reason"] == "not_supported"
 
 
+async def test_non_remote_malutka_is_not_offered(flow, monkeypatch):
+    info = SimpleNamespace(name="SWBDdrv_mc0", address=ADDRESS)
+    monkeypatch.setattr(
+        flow_module.bluetooth, "async_discovered_service_info", lambda *a, **kw: [info]
+    )
+    assert (await flow.async_step_user())["reason"] == "no_devices_found"
+    assert (await flow.async_step_bluetooth(info))["reason"] == "not_supported"
+
+
 async def test_duplicate_discovery_aborts(flow, hass, entry, info):
     hass.config_entries._entries[entry.entry_id] = entry
     with pytest.raises(AbortFlow, match="already_configured"):
@@ -158,6 +172,81 @@ async def test_six_entities_have_distinct_ids_and_use_coordinator(hass, entry):
     coordinator._disconnected()
     assert all(not entity.available for entity in entities)
     await coordinator.async_shutdown()
+
+
+@pytest.mark.parametrize(
+    ("entry", "expected"),
+    [
+        ("SWBDdrv_mc1", {"enabled", "speed", "hours", "minutes"}),
+        ("SWBDdrv_mc2", {"enabled", "speed", "hours", "minutes", "sensitivity", "motion_enabled"}),
+        ("SWBDdrv_mc3", {"enabled", "speed", "hours", "minutes", "sensitivity", "motion_enabled"}),
+        ("SWBDdrv_mc5", {"enabled", "speed", "hours", "minutes", "sensitivity", "motion_enabled"}),
+    ],
+    indirect=["entry"],
+)
+async def test_model_controls(hass, entry, expected):
+    coordinator = SwbdCoordinator(hass, entry)
+    coordinator.async_set_updated_data(RockerState.parse(frame()))
+    entry.runtime_data = coordinator
+    entities = []
+    await setup_switches(hass, entry, lambda new: entities.extend(new))
+    await setup_numbers(hass, entry, lambda new: entities.extend(new))
+    assert {entity.entity_description.key for entity in entities} == expected
+    assert {entity.unique_id for entity in entities} == {f"{ADDRESS}_{key}" for key in expected}
+    await coordinator.async_shutdown()
+
+
+@pytest.mark.parametrize("entry", ["SWBDdrv_mc1"], indirect=True)
+@pytest.mark.parametrize("field", ["sensitivity", "motion_enabled"])
+async def test_painka_sensor_command_is_rejected_before_bluetooth(hass, entry, field):
+    coordinator = SwbdCoordinator(hass, entry)
+    coordinator.client.async_set_field = AsyncMock()
+    with pytest.raises(HomeAssistantError, match="does not support"):
+        await coordinator.async_set_field(field, 1)
+    coordinator.client.async_set_field.assert_not_awaited()
+    assert coordinator.last_update_success
+    await coordinator.async_shutdown()
+
+
+@pytest.mark.parametrize("entry", ["SWBDdrv_mc1"], indirect=True)
+async def test_painka_upgrade_removes_only_its_unsupported_controls(hass, entry, monkeypatch):
+    registry = er.async_get(hass)
+    hass.config_entries._entries[entry.entry_id] = entry
+    old_entities = {
+        field: registry.async_get_or_create(
+            "switch" if field in {"enabled", "motion_enabled"} else "number",
+            "swbd",
+            f"{ADDRESS}_{field}",
+            config_entry=entry,
+        )
+        for field in ("enabled", "speed", "hours", "minutes", "sensitivity", "motion_enabled")
+    }
+    custom = registry.async_get_or_create("sensor", "swbd", "unrelated", config_entry=entry)
+    other_device = registry.async_get_or_create("switch", "swbd", "OTHER_motion_enabled")
+    retained = old_entities["enabled"]
+    registry.async_update_entity(retained.entity_id, new_entity_id="switch.my_rocker")
+    monkeypatch.setattr(
+        SwbdCoordinator, "_async_update_data", AsyncMock(return_value=RockerState.parse(frame()))
+    )
+    monkeypatch.setattr(hass.config_entries, "async_forward_entry_setups", AsyncMock())
+    assert await async_setup_entry(hass, entry)
+    assert registry.async_get_entity_id("switch", "swbd", f"{ADDRESS}_motion_enabled") is None
+    assert registry.async_get_entity_id("number", "swbd", f"{ADDRESS}_sensitivity") is None
+    assert registry.async_get("switch.my_rocker") is not None
+    for key in ("speed", "hours", "minutes"):
+        assert registry.async_get(old_entities[key].entity_id) is not None
+    assert registry.async_get(custom.entity_id) is not None
+    assert registry.async_get(other_device.entity_id) is not None
+    await entry.runtime_data.async_shutdown()
+
+
+@pytest.mark.parametrize("entry", ["SWBDdrv_mc0", "unknown"], indirect=True)
+async def test_unsupported_model_setup_does_not_connect(hass, entry, monkeypatch):
+    update = AsyncMock()
+    monkeypatch.setattr(SwbdCoordinator, "_async_update_data", update)
+    with pytest.raises(ConfigEntryError, match="no confirmed Bluetooth"):
+        await async_setup_entry(hass, entry)
+    update.assert_not_awaited()
 
 
 async def test_setup_and_unload_cleanup(hass, entry, monkeypatch):

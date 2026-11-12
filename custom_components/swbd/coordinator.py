@@ -11,7 +11,7 @@ from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .client import SwbdClient
-from .const import DOMAIN
+from .const import DOMAIN, MODEL_CONTROLS
 from .protocol import RockerState
 
 _LOGGER = logging.getLogger(__name__)
@@ -31,6 +31,7 @@ class SwbdCoordinator(DataUpdateCoordinator[RockerState]):
         self.address = entry.data["address"]
         self.name = entry.title
         self.local_name = entry.data.get("local_name", "")
+        self.supported_controls = MODEL_CONTROLS.get(self.local_name, frozenset())
         self.client = SwbdClient(
             lambda: bluetooth.async_ble_device_from_address(hass, self.address, connectable=True),
             self.name,
@@ -53,6 +54,8 @@ class SwbdCoordinator(DataUpdateCoordinator[RockerState]):
             raise UpdateFailed(f"Cannot read rocker state: {err}") from err
 
     async def async_set_field(self, field: str, value: int | bool) -> None:
+        if field not in self.supported_controls:
+            raise HomeAssistantError(f"This rocker model does not support {field}")
         try:
             state = await self.client.async_set_field(field, value)
         except (BleakError, TimeoutError, OSError, ValueError) as err:

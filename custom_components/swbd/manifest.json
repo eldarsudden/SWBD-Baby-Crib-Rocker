@@ -2,7 +2,6 @@
   "domain": "swbd",
   "name": "SWBD Baby Crib Rocker",
   "bluetooth": [
-    {"local_name": "SWBDdrv_mc0", "connectable": true},
     {"local_name": "SWBDdrv_mc1", "connectable": true},
     {"local_name": "SWBDdrv_mc2", "connectable": true},
     {"local_name": "SWBDdrv_mc3", "connectable": true},
@@ -16,5 +15,5 @@
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/eldarsudden/SWBD-Baby-Crib-Rocker/issues",
   "requirements": ["bleak-retry-connector==4.7.1"],
-  "version": "0.1.1"
+  "version": "0.1.2"
 }

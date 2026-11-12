@@ -55,7 +55,12 @@ async def async_setup_entry(
     entry: SwbdConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    async_add_entities(SwbdNumber(entry.runtime_data, description) for description in DESCRIPTIONS)
+    coordinator = entry.runtime_data
+    async_add_entities(
+        SwbdNumber(coordinator, description)
+        for description in DESCRIPTIONS
+        if description.key in coordinator.supported_controls
+    )
 
 
 class SwbdNumber(SwbdEntity, NumberEntity):
